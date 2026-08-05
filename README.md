@@ -55,3 +55,24 @@ File edits and build commands inside your new app are auto-allowed; anything els
 - `npm run e2e-llm` — manual live test of the AI phases (needs a connected Claude account; costs tokens; never CI)
 - Template lives in `template/` with `__TOKEN__` placeholders and variant-suffixed files (`App.swift.menubar`, `MenuBar.swift.popover`, …)
 - `scripts/make-icon.sh` regenerates the placeholder icon
+- `npm link` (run once in this repo) puts a global `wizzzard` command on your PATH that tracks the working tree — no reinstall needed while developing
+
+## Releasing to npm
+
+One-time setup:
+
+```sh
+npm login
+```
+
+(Uses your npmjs.com account in the browser; create one there first if needed.)
+
+Then for each release:
+
+```sh
+npm version patch   # or minor / major — bumps package.json, commits, and tags
+npm publish
+git push --follow-tags
+```
+
+Sanity-check the tarball before publishing with `npm pack --dry-run` — it should list `src/`, `template/` (including `AppIcon.icns` and the undotted `gitignore`), and all three `prompts/*.md` files. Unscoped packages publish as public by default; npm prompts for an OTP if 2FA is on. After publishing, `npx wizzzard` works on any machine with Node 24+.
