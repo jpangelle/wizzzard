@@ -1,4 +1,3 @@
-import { execFileSync } from "node:child_process";
 import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import type { Answers } from "./answers.ts";
@@ -18,7 +17,6 @@ export async function generate(
   answers: Answers,
   parentDir: string,
   templateDir: string,
-  options: { git?: boolean } = {},
 ): Promise<string> {
   const moduleName = deriveModuleName(answers.appName);
   const kebabName = deriveKebabName(answers.appName);
@@ -52,12 +50,6 @@ export async function generate(
     const dest = path.join(targetDir, file.relPath);
     await mkdir(path.dirname(dest), { recursive: true });
     await writeFile(dest, file.contents);
-  }
-
-  if (options.git ?? true) {
-    execFileSync("git", ["init", "-q"], { cwd: targetDir });
-    execFileSync("git", ["add", "-A"], { cwd: targetDir });
-    execFileSync("git", ["commit", "-q", "-m", "Scaffolded by wizzzard"], { cwd: targetDir });
   }
 
   return targetDir;

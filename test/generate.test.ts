@@ -20,7 +20,7 @@ const base: Answers = {
 
 async function generateInTmp(answers: Answers): Promise<string> {
   const parent = await mkdtemp(path.join(tmpdir(), "wizzzard-test-"));
-  return generate(answers, parent, templateDir, { git: false });
+  return generate(answers, parent, templateDir);
 }
 
 async function listFiles(dir: string, rel = ""): Promise<string[]> {
@@ -48,6 +48,8 @@ test("menubar+popover app has expected files with tokens substituted", async () 
   assert.ok(files.includes("Sources/ClipboardBuddy/MenuBar.swift"));
   assert.ok(!files.some((f) => path.basename(f).match(/\.(menubar|windowed|popover|menu)$/)),
     "no variant-suffixed files may leak into output");
+  assert.ok(!files.some((f) => f.startsWith(".git/")), "no .git directory contents may be created");
+  assert.ok(!(await readdir(dir)).includes(".git"), "no .git directory may be created");
 
   for (const file of files) {
     if (path.extname(file) === ".icns") continue;
@@ -104,13 +106,6 @@ test("refuses a non-empty target directory and writes nothing", async () => {
   const target = path.join(parent, "clipboard-buddy");
   await mkdir(target, { recursive: true });
   await writeFile(path.join(target, "existing.txt"), "hi");
-  await assert.rejects(() => generate(base, parent, templateDir, { git: false }), /not empty/);
+  await assert.rejects(() => generate(base, parent, templateDir), /not empty/);
   assert.deepEqual(await readdir(target), ["existing.txt"]);
-});
-
-test("git option creates a repo with an initial commit", async () => {
-  const parent = await mkdtemp(path.join(tmpdir(), "wizzzard-test-"));
-  const dir = await generate(base, parent, templateDir, { git: true });
-  const files = await readdir(dir);
-  assert.ok(files.includes(".git"));
 });

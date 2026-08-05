@@ -7,5 +7,5 @@ if (!json || !parentDir) {
   process.exit(1);
 }
 const templateDir = fileURLToPath(new URL("../template", import.meta.url));
-const target = await generate(JSON.parse(json), parentDir, templateDir, { git: false });
+const target = await generate(JSON.parse(json), parentDir, templateDir);
 console.log(target);

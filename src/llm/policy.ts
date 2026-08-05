@@ -6,7 +6,7 @@ export interface PolicyDecision {
   reason: string;
 }
 
-const BASH_WHITELIST = new Set(["swift", "make", "git", "plutil", "codesign", "mkdir", "ls", "cat"]);
+const BASH_WHITELIST = new Set(["swift", "make", "plutil", "codesign", "mkdir", "ls", "cat"]);
 const FILE_TOOLS = new Set(["Read", "Glob", "Grep", "Write", "Edit", "MultiEdit", "NotebookEdit"]);
 const PATH_KEYS = ["file_path", "path", "notebook_path"];
 

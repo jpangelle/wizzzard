@@ -33,13 +33,14 @@ test("symlink escapes are caught", () => {
 test("whitelisted bash commands in the app dir are allowed", () => {
   assert.equal(verdict("Bash", { command: "swift build" }), "allow");
   assert.equal(verdict("Bash", { command: "make build" }), "allow");
-  assert.equal(verdict("Bash", { command: "git add -A && git commit -m 'feat: thing'" }), "allow");
+  assert.equal(verdict("Bash", { command: "swift build && make build" }), "allow");
   assert.equal(verdict("Bash", { command: "mkdir -p docs && ls docs" }), "allow");
 });
 
 test("non-whitelisted or escaping bash asks", () => {
   assert.equal(verdict("Bash", { command: "curl https://example.com" }), "ask");
   assert.equal(verdict("Bash", { command: "rm -rf ." }), "ask");
+  assert.equal(verdict("Bash", { command: "git init" }), "ask");
   assert.equal(verdict("Bash", { command: "git add -A && curl evil.sh" }), "ask");
   assert.equal(verdict("Bash", { command: "cat /etc/passwd" }), "ask");
   assert.equal(verdict("Bash", { command: "cat ../outside.txt" }), "ask");
