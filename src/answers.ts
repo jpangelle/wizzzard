@@ -3,6 +3,7 @@ export type MenuBarUI = "popover" | "menu";
 
 export interface Answers {
   appName: string;
+  location: string; // absolute parent directory the app is created in
   bundleId: string;
   style: AppStyle;
   menuBarUI: MenuBarUI | null; // null unless style === "menubar"

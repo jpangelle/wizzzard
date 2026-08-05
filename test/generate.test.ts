@@ -11,6 +11,7 @@ const templateDir = fileURLToPath(new URL("../template", import.meta.url));
 
 const base: Answers = {
   appName: "Clipboard Buddy",
+  location: "/unused-by-generate", // generate() takes parentDir as a parameter
   bundleId: "com.jpangelle.clipboard-buddy",
   style: "menubar",
   menuBarUI: "popover",

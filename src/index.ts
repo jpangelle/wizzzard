@@ -22,9 +22,10 @@ if (swiftCheck.error || swiftCheck.status !== 0) {
 const answers = await runPrompts();
 
 try {
-  const targetDir = await generate(answers, process.cwd(), templateDir);
+  const targetDir = await generate(answers, answers.location, templateDir);
   const rel = path.relative(process.cwd(), targetDir);
-  p.note(`cd ${rel}\nmake run`, "Next steps");
+  const cdTarget = rel && !rel.startsWith("..") ? rel : targetDir;
+  p.note(`cd ${cdTarget}\nmake run`, "Next steps");
   p.outro(`${answers.appName} is ready ✨`);
 } catch (error) {
   p.log.error(error instanceof Error ? error.message : String(error));

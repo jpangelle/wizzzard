@@ -1,6 +1,8 @@
+import path from "node:path";
 import * as p from "@clack/prompts";
 import type { Answers, AppStyle, MenuBarUI } from "./answers.ts";
-import { defaultBundleId, isValidBundleId, validateAppName } from "./names.ts";
+import { defaultBundleId, deriveKebabName, isValidBundleId, validateAppName } from "./names.ts";
+import { resolveLocation } from "./paths.ts";
 
 function guard<T>(value: T | symbol): T {
   if (p.isCancel(value)) {
@@ -20,6 +22,16 @@ export async function runPrompts(): Promise<Answers> {
       validate: (value) => validateAppName(value ?? ""),
     }),
   ).trim();
+
+  const location = resolveLocation(
+    guard(
+      await p.text({
+        message: "Where should it be created?",
+        placeholder: ". (current directory)",
+        defaultValue: ".",
+      }),
+    ),
+  );
 
   const bundleId = guard(
     await p.text({
@@ -68,6 +80,7 @@ export async function runPrompts(): Promise<Answers> {
   };
   const summary = [
     `App name:        ${appName}`,
+    `Location:        ${path.join(location, deriveKebabName(appName))}`,
     `Bundle ID:       ${bundleId}`,
     `Style:           ${styleLabels[style]}`,
     ...(menuBarUI ? [`Menu bar UI:     ${menuBarUI === "popover" ? "Popover" : "Plain menu"}`] : []),
@@ -75,11 +88,11 @@ export async function runPrompts(): Promise<Answers> {
   ].join("\n");
   p.note(summary, "Summary");
 
-  const confirmed = guard(await p.confirm({ message: "Scaffold it?" }));
+  const confirmed = guard(await p.confirm({ message: "Create the app?" }));
   if (!confirmed) {
     p.cancel("Cancelled — nothing was written.");
     process.exit(0);
   }
 
-  return { appName, bundleId, style, menuBarUI, launchAtLogin };
+  return { appName, location, bundleId, style, menuBarUI, launchAtLogin };
 }

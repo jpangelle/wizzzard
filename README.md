@@ -20,10 +20,11 @@ Requires macOS 14+, Node 24+, and the Xcode Command Line Tools (`xcode-select --
 ## What it asks
 
 1. App name
-2. Bundle identifier (defaults to `com.jpangelle.<name>`)
-3. App style — menu bar only / Dock app that hides on close / regular Dock app
-4. Menu bar UI — SwiftUI popover or plain dropdown menu (menu-bar apps only)
-5. Launch at login default
+2. Where to create it (defaults to the current directory; `~` works)
+3. Bundle identifier (defaults to `com.jpangelle.<name>`)
+4. App style — menu bar only / Dock app that hides on close / regular Dock app
+5. Menu bar UI — SwiftUI popover or plain dropdown menu (menu-bar apps only)
+6. Launch at login default
 
 ## What you get
 
