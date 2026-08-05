@@ -8,4 +8,5 @@ export interface Answers {
   style: AppStyle;
   menuBarUI: MenuBarUI | null; // null unless style === "menubar"
   launchAtLogin: boolean;
+  description: string | null; // optional app description; enables the AI phases
 }

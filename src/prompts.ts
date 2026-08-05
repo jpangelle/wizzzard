@@ -73,6 +73,15 @@ export async function runPrompts(): Promise<Answers> {
     }),
   );
 
+  const descriptionInput = guard(
+    await p.text({
+      message: "Describe your app",
+      placeholder: "(optional — Enter to skip; enables AI brainstorm → plan → implement)",
+      defaultValue: "",
+    }),
+  );
+  const description = descriptionInput.trim() || null;
+
   const styleLabels: Record<AppStyle, string> = {
     menubar: "Menu bar only (no Dock icon)",
     "hide-on-close": "Dock app, hides on window close",
@@ -85,6 +94,7 @@ export async function runPrompts(): Promise<Answers> {
     `Style:           ${styleLabels[style]}`,
     ...(menuBarUI ? [`Menu bar UI:     ${menuBarUI === "popover" ? "Popover" : "Plain menu"}`] : []),
     `Launch at login: ${launchAtLogin ? "yes" : "no"}`,
+    ...(description ? [`Description:     ${description.length > 60 ? description.slice(0, 57) + "..." : description}`] : []),
   ].join("\n");
   p.note(summary, "Summary");
 
@@ -94,5 +104,5 @@ export async function runPrompts(): Promise<Answers> {
     process.exit(0);
   }
 
-  return { appName, location, bundleId, style, menuBarUI, launchAtLogin };
+  return { appName, location, bundleId, style, menuBarUI, launchAtLogin, description };
 }

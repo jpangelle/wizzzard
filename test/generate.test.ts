@@ -16,6 +16,7 @@ const base: Answers = {
   style: "menubar",
   menuBarUI: "popover",
   launchAtLogin: true,
+  description: null,
 };
 
 async function generateInTmp(answers: Answers): Promise<string> {
