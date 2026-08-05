@@ -1,0 +1,28 @@
+{
+  "name": "wizzzard",
+  "version": "0.1.0",
+  "description": "CLI wizard for scaffolding macOS QoL utility apps",
+  "type": "module",
+  "bin": {
+    "wizzzard": "./src/index.ts"
+  },
+  "files": [
+    "src",
+    "template"
+  ],
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "test": "node --test \"test/*.test.ts\"",
+    "smoke": "bash test/smoke.sh",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@clack/prompts": "^1.7.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.2",
+    "typescript": "^7.0.2"
+  }
+}
