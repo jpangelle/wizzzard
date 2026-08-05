@@ -26,8 +26,15 @@ function userMessage(text: string): UserMessage {
   };
 }
 
-function describeToolUse(name: string, input: Record<string, unknown>): string {
-  if (name === "Bash") return `$ ${String(input.command ?? "").slice(0, 100)}`;
+/**
+ * Human-readable summary of a tool call. Pass `maxLen` to truncate long Bash commands for
+ * progress lines; omit it (e.g. for permission prompts) to keep the full command visible.
+ */
+function describeToolUse(name: string, input: Record<string, unknown>, maxLen?: number): string {
+  if (name === "Bash") {
+    const command = String(input.command ?? "");
+    return `$ ${maxLen !== undefined ? command.slice(0, maxLen) : command}`;
+  }
   const target = input.file_path ?? input.path ?? input.notebook_path;
   if (typeof target === "string") return `${name.toLowerCase()} ${target}`;
   return name;
@@ -42,6 +49,7 @@ function buildOptions(systemPrompt: string, appDir: string, io: PhaseIO) {
       if (decision.verdict === "allow") {
         return { behavior: "allow" as const, updatedInput: input };
       }
+      // Full command/input — never truncated — so the human sees exactly what will run.
       const approved = await io.askPermission(
         `${describeToolUse(toolName, input)} — ${decision.reason}`,
       );
@@ -104,10 +112,13 @@ export async function runInteractivePhase(opts: {
         if (block.type === "text") turnText += (block as { text: string }).text;
         else if (block.type === "tool_use") {
           const b = block as { name: string; input: Record<string, unknown> };
-          opts.io.onProgress(describeToolUse(b.name, b.input));
+          opts.io.onProgress(describeToolUse(b.name, b.input, 100));
         }
       }
     } else if (raw.type === "result") {
+      if (raw.subtype !== "success") {
+        throw new Error(`phase ended abnormally: ${raw.subtype}`);
+      }
       if (turnText.includes(DONE_MARKER)) {
         const finalText = turnText.replace(DONE_MARKER, "").trim();
         if (finalText) opts.io.onAssistantText(finalText);
@@ -146,7 +157,7 @@ export async function runAutonomousPhase(opts: {
         if (block.type === "text") text += (block as { text: string }).text;
         else if (block.type === "tool_use") {
           const b = block as { name: string; input: Record<string, unknown> };
-          opts.io.onProgress(describeToolUse(b.name, b.input));
+          opts.io.onProgress(describeToolUse(b.name, b.input, 100));
         }
       }
     } else if (raw.type === "result") {

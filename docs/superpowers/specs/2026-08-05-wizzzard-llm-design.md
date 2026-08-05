@@ -82,7 +82,7 @@ decide(toolName, toolInput, appDir) → { verdict: "allow" | "ask", reason: stri
 src/index.ts        # routing only: "setup" → runSetup(), none → runWizard(), else usage
 src/wizard.ts       # existing wizard flow (moved from index.ts) + describe question + phases
 src/setup.ts        # probe / login handoff / messaging
-src/llm/session.ts  # SDK wrapper: probeAuth(), runInteractivePhase(), runStreamingPhase()
+src/llm/session.ts  # SDK wrapper: probeAuth(), runInteractivePhase(), runAutonomousPhase()
 src/llm/policy.ts   # pure permission decisions
 src/llm/prompts.ts  # load prompts/<phase>.md, inject app-context tokens
 prompts/brainstorm.md, plan.md, implement.md   # bundled adapted skills ("prompts" added to package.json files)

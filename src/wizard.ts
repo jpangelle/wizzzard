@@ -35,37 +35,39 @@ export async function runWizard(): Promise<void> {
 }
 
 async function runPhases(answers: Answers, targetDir: string): Promise<void> {
-  const { probeAuth, runAutonomousPhase, runInteractivePhase } = await import("./llm/session.ts");
-  const { loadPhasePrompt } = await import("./llm/prompts.ts");
-
   const spin = p.spinner();
-  spin.start("Checking your Claude connection");
-  const connected = await probeAuth();
-  spin.stop(connected ? "Claude connected" : "Claude not connected");
-  if (!connected) {
-    p.log.warn("AI phases need a connected Claude account — run `wizzzard setup`. Your app is scaffolded and ready.");
-    return;
-  }
-
-  const io: PhaseIO = {
-    onProgress: (line) => p.log.step(line),
-    onAssistantText: (text) => p.log.message(text),
-    askPermission: async (summary) => {
-      const answer = await p.confirm({ message: `Allow? ${summary}` });
-      return !p.isCancel(answer) && answer === true;
-    },
-  };
-  const askUser = async (question: string): Promise<string> => {
-    p.log.message(question);
-    const answer = await p.text({ message: "Your answer" });
-    if (p.isCancel(answer)) {
-      p.cancel("Stopping here — your app and any docs written so far are intact.");
-      process.exit(0);
-    }
-    return answer;
-  };
-
   try {
+    const { probeAuth, runAutonomousPhase, runInteractivePhase } = await import("./llm/session.ts");
+    const { loadPhasePrompt } = await import("./llm/prompts.ts");
+
+    spin.start("Checking your Claude connection");
+    const connected = await probeAuth();
+    spin.stop(connected ? "Claude connected" : "Claude not connected");
+    if (!connected) {
+      p.log.warn(
+        "AI phases need a connected Claude account — run `wizzzard setup`. Your app is scaffolded and ready.",
+      );
+      return;
+    }
+
+    const io: PhaseIO = {
+      onProgress: (line) => p.log.step(line),
+      onAssistantText: (text) => p.log.message(text),
+      askPermission: async (summary) => {
+        const answer = await p.confirm({ message: `Allow? ${summary}`, initialValue: false });
+        return !p.isCancel(answer) && answer === true;
+      },
+    };
+    const askUser = async (question: string): Promise<string> => {
+      p.log.message(question);
+      const answer = await p.text({ message: "Your answer" });
+      if (p.isCancel(answer)) {
+        p.cancel("Stopping here — your app and any docs written so far are intact.");
+        process.exit(0);
+      }
+      return answer;
+    };
+
     p.log.info("Brainstorming your app — Claude will ask a few questions");
     await runInteractivePhase({
       systemPrompt: loadPhasePrompt("brainstorm", answers),
@@ -102,6 +104,7 @@ async function runPhases(answers: Answers, targetDir: string): Promise<void> {
     });
     if (summary) p.note(summary, "Implementation summary");
   } catch (error) {
+    spin.stop();
     p.log.error(
       `Something went wrong talking to Claude — your app and docs written so far are intact. ` +
         `Continue anytime with Claude Code in ${targetDir}. (${error instanceof Error ? error.message : String(error)})`,

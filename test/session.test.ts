@@ -106,6 +106,22 @@ test("interactive phase strips the marker from the final text", async () => {
   assert.deepEqual(finalTexts, ["All done here."]);
 });
 
+test("interactive phase rejects on a non-success result", async () => {
+  await assert.rejects(
+    runInteractivePhase({
+      systemPrompt: "sys",
+      initialMessage: "begin",
+      appDir: "/tmp/fake-app",
+      io: silentIO,
+      askUser: async () => {
+        throw new Error("should not ask");
+      },
+      queryFn: fakeQuery([{ blocks: [{ type: "text", text: "ran out" }], resultSubtype: "error_max_turns" }], []),
+    }),
+    /error_max_turns/,
+  );
+});
+
 test("autonomous phase reports tool progress and resolves with final text", async () => {
   const progress: string[] = [];
   const result = await runAutonomousPhase({

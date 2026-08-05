@@ -8,7 +8,7 @@ export interface PolicyDecision {
 
 const BASH_WHITELIST = new Set(["swift", "make", "plutil", "codesign", "mkdir", "ls", "cat"]);
 const FILE_TOOLS = new Set(["Read", "Glob", "Grep", "Write", "Edit", "MultiEdit", "NotebookEdit"]);
-const PATH_KEYS = ["file_path", "path", "notebook_path"];
+const PATH_KEYS = ["file_path", "path", "notebook_path", "pattern"];
 
 export function decide(
   toolName: string,
@@ -57,10 +57,15 @@ function bashProblem(command: string, root: string): string | null {
   if (segments.length === 0) return "empty command";
 
   for (const segment of segments) {
-    const words = segment.split(/\s+/);
+    // Pad redirection operators with spaces so a path fused to `>`, `>>`, `<`, `2>`, etc.
+    // (e.g. `>>~/.zshenv`) becomes its own word instead of hiding inside a non-`~`/absolute token.
+    const padded = segment.replace(/\d*[<>]{1,2}&?/g, " $& ");
+    const words = padded.trim().split(/\s+/);
     if (!BASH_WHITELIST.has(words[0])) return `\`${words[0]}\` is not in the command whitelist`;
     for (const raw of words.slice(1)) {
-      const word = raw.replace(/^['"]|['"]$/g, "");
+      const stripped = raw.replace(/^\d*[<>&]+/, "");
+      const word = stripped.replace(/^['"]|['"]$/g, "");
+      if (!word) continue;
       if (word.startsWith("~")) return "references the home directory";
       if (path.isAbsolute(word) && !isUnder(resolveExisting(word), root)) {
         return `absolute path outside the app directory (${word})`;

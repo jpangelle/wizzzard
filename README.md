@@ -1,6 +1,6 @@
 # wizzzard 🧙
 
-Interactive CLI wizard for scaffolding macOS QoL utility apps. Answer ~5 questions, get a complete, buildable, native SwiftUI app — menu bar item, launch at login, dock policy, and settings window pre-wired — so you can work on the idea instead of the scaffolding.
+Interactive CLI wizard for scaffolding macOS QoL utility apps. Answer a few questions, get a complete, buildable, native SwiftUI app — menu bar item, launch at login, dock policy, and settings window pre-wired — so you can work on the idea instead of the scaffolding.
 
 ## Use
 
@@ -39,13 +39,13 @@ Connect your Claude account once:
 wizzzard setup
 ```
 
-This uses Claude Code's own login (`claude /login`) — wizzzard never stores tokens. Then, when the wizard asks **Describe your app**, answering it kicks off, inside your new repo:
+This uses Claude Code's own login (`claude /login`) — wizzzard never stores tokens. Then, when the wizard asks **Describe your app**, answering it kicks off, inside your new app:
 
 1. **Brainstorm** — Claude asks a few questions one at a time, then writes `docs/DESIGN.md`
 2. **Plan** (gated) — turns the design into a step-by-step `docs/PLAN.md`
 3. **Implement** (gated) — executes the plan task by task, ending with a green `make build`
 
-File edits and build commands inside your new app are auto-allowed; anything else (other paths, other commands, network) asks on-screen first. Skip any gate and pick up later in Claude Code — the docs are plain markdown in your repo.
+File edits and build commands inside your new app are auto-allowed; anything else (other paths, other commands, network) asks on-screen first. Skip any gate and pick up later in Claude Code — the docs are plain markdown in your app directory.
 
 ## Development
 

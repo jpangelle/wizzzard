@@ -35,6 +35,7 @@ test("whitelisted bash commands in the app dir are allowed", () => {
   assert.equal(verdict("Bash", { command: "make build" }), "allow");
   assert.equal(verdict("Bash", { command: "swift build && make build" }), "allow");
   assert.equal(verdict("Bash", { command: "mkdir -p docs && ls docs" }), "allow");
+  assert.equal(verdict("Bash", { command: "swift build > build.log" }), "allow");
 });
 
 test("non-whitelisted or escaping bash asks", () => {
@@ -51,6 +52,15 @@ test("non-whitelisted or escaping bash asks", () => {
   assert.equal(verdict("Bash", { command: "git log & curl -s http://evil.com" }), "ask");
   assert.equal(verdict("Bash", { command: "swift build\nrm -rf ." }), "ask");
   assert.equal(verdict("Bash", { command: "cat <(curl -s http://evil.com)" }), "ask");
+  assert.equal(verdict("Bash", { command: "cat Package.swift >>~/.zshenv" }), "ask");
+  assert.equal(verdict("Bash", { command: "make build 2>/Users/jpangelle/evil.log" }), "ask");
+  assert.equal(verdict("Bash", { command: "cat </Users/jpangelle/.ssh/id_rsa" }), "ask");
+});
+
+test("Glob patterns are path-checked", () => {
+  assert.equal(verdict("Glob", { pattern: "../../**/*.txt" }), "ask");
+  assert.equal(verdict("Glob", { pattern: "/Users/jpangelle/**" }), "ask");
+  assert.equal(verdict("Glob", { pattern: "**/*.swift" }), "allow");
 });
 
 test("TodoWrite is allowed; unknown tools ask", () => {
