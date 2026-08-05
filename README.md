@@ -18,7 +18,13 @@ npx wizzzard
 
 ## Use
 
-Run the wizard anywhere:
+First, connect your Claude account (one time — this powers the optional AI phases; it uses Claude Code's own login, and wizzzard never stores tokens):
+
+```sh
+wizzzard setup
+```
+
+Then run the wizard anywhere:
 
 ```sh
 wizzzard
@@ -57,13 +63,7 @@ The app is ad-hoc signed with a stable identifier, so macOS permission grants (T
 
 ## AI phases (optional)
 
-Connect your Claude account once:
-
-```sh
-wizzzard setup
-```
-
-This uses Claude Code's own login (`claude /login`) — wizzzard never stores tokens. Then, when the wizard asks **Describe your app**, answering it kicks off, inside your new app:
+With your Claude account connected (`wizzzard setup`, from the Use section), answering the wizard's **Describe your app** question kicks off, inside your new app:
 
 1. **Brainstorm** — Claude asks a few questions one at a time, then writes `docs/DESIGN.md`
 2. **Plan** (gated) — turns the design into a step-by-step `docs/PLAN.md`
