@@ -47,17 +47,17 @@ New optional question, last before the summary:
 
 - Auth probe first; on failure: `p.log.warn` "AI phases need a connected Claude account — run `wizzzard setup`. Your app is scaffolded and ready." and stop (exit success).
 - Interactive Q&A rendered in the TUI: the agent asks **one question at a time** (adapted superpowers brainstorming); wizzzard shows it and collects the answer via a clack text prompt; loop until the agent presents a short design and asks for approval (yes/no via clack confirm; "no" loops with revisions).
-- Output: agent writes `docs/DESIGN.md` in the app repo and commits it (`docs: design from wizzzard brainstorm`).
+- Output: agent writes `docs/DESIGN.md` in the app's `docs/` directory. No git anywhere — generated apps have no git repo (user decision 2026-08-05).
 
 ### Phase 2 — Plan (gated)
 
-- Gate: `p.confirm("Write the implementation plan?")` — decline ⇒ stop here (design committed; outro points at Claude Code for later).
-- Adapted writing-plans prompt turns `docs/DESIGN.md` into `docs/PLAN.md`: bite-sized TDD tasks with exact files, scaffold-aware (edit `ContentView.swift`/add files under `Sources/<Module>/`, verify with `swift build` and `make build`, never `swift run`). Committed (`docs: implementation plan`).
+- Gate: `p.confirm("Write the implementation plan?")` — decline ⇒ stop here (design written; outro points at Claude Code for later).
+- Adapted writing-plans prompt turns `docs/DESIGN.md` into `docs/PLAN.md`: bite-sized TDD tasks with exact files, scaffold-aware (edit `ContentView.swift`/add files under `Sources/<Module>/`, verify with `swift build` and `make build`, never `swift run`).
 
 ### Phase 3 — Implement (gated)
 
-- Gate: `p.confirm("Implement it now?")` — decline ⇒ stop (plan committed).
-- Adapted executing-plans prompt: task loop over `docs/PLAN.md` — implement, build, fix, commit per task (`feat: <task>`); finish by running `make build` and reporting.
+- Gate: `p.confirm("Implement it now?")` — decline ⇒ stop (plan written).
+- Adapted executing-plans prompt: task loop over `docs/PLAN.md` — implement, build, fix per task; finish by running `make build` and reporting.
 - wizzzard streams progress from the SDK's structured events: one line per tool use (file edited, command run + ok/fail, task committed). Assistant prose between tool calls renders dimmed and truncated to its first line; the final phase summary renders in full.
 
 ### Wrap-up
@@ -72,7 +72,7 @@ Outro always prints `cd <path>` + `make run`, and after phase 3, "then see docs/
 decide(toolName, toolInput, appDir) → { verdict: "allow" | "ask", reason: string }
 ```
 
-- **allow**: Read/Glob/Grep anywhere under `appDir`; Write/Edit under `appDir`; Bash whose command starts with a whitelisted binary (`swift`, `make`, `git`, `plutil`, `codesign`, `mkdir`, `ls`, `cat`) **and** whose `cwd` resolves under `appDir`.
+- **allow**: Read/Glob/Grep anywhere under `appDir`; Write/Edit under `appDir`; Bash whose every chained segment starts with a whitelisted binary (`swift`, `make`, `plutil`, `codesign`, `mkdir`, `ls`, `cat` — no `git`: generated apps have no repo) **and** whose paths resolve under `appDir`; shell expansion (`$`, backticks) and process substitution are never auto-allowed.
 - **ask**: anything else — web tools, Bash outside the whitelist, any path outside `appDir`. wizzzard renders a clack confirm showing tool + exact input; decline ⇒ the agent is told the call was denied.
 - Path checks resolve symlinks/`..` before comparing prefixes.
 
@@ -94,8 +94,8 @@ prompts/brainstorm.md, plan.md, implement.md   # bundled adapted skills ("prompt
 
 ## Error handling
 
-- SDK/API error mid-phase: abort the phase, keep everything committed so far, message: "Something went wrong talking to Claude — your app and docs so far are intact. Continue anytime with Claude Code in <dir>." Exit success (scaffold succeeded).
-- Ctrl-C during a phase: same guarantee (phases only produce committed artifacts + working-tree edits; implement phase commits per task).
+- SDK/API error mid-phase: abort the phase, keep everything written so far, message: "Something went wrong talking to Claude — your app and docs so far are intact. Continue anytime with Claude Code in <dir>." Exit success (scaffold succeeded).
+- Ctrl-C during a phase: same guarantee (phases only add files; nothing is ever rolled back).
 - Generation itself never depends on any LLM call succeeding.
 
 ## Testing
@@ -109,7 +109,7 @@ prompts/brainstorm.md, plan.md, implement.md   # bundled adapted skills ("prompt
 
 1. `wizzzard setup` connects an unauthenticated machine end-to-end (via `claude /login`) and reports success; re-running is idempotent.
 2. Wizard with empty description behaves byte-identically to today.
-3. Describe → brainstorm produces a committed `docs/DESIGN.md` after an interactive one-question-at-a-time session with an approval handshake.
-4. Both gates work; accepting them yields committed `docs/PLAN.md`, then per-task commits and a final `make build` pass.
+3. Describe → brainstorm produces `docs/DESIGN.md` after an interactive one-question-at-a-time session with an approval handshake.
+4. Both gates work; accepting them yields `docs/PLAN.md`, then implementation and a final `make build` pass. No git repo is created at any point.
 5. The agent cannot touch paths outside the app dir or run non-whitelisted commands without an explicit on-screen confirmation.
 6. All CI tests pass offline; auth failure at any point leaves a fully usable scaffolded app.

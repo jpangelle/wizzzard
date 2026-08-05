@@ -16,7 +16,7 @@
 - Node ≥ 24 native type-stripping: erasable-only TS (no `enum`/`namespace`/parameter properties), `.ts` extensions on relative imports, `import type` for types.
 - Runtime deps after this plan: `@clack/prompts` + `@anthropic-ai/claude-agent-sdk` — nothing else. Tests stay on `node:test`, offline (fake `query` injection; no network in CI).
 - The phase-done protocol marker is exactly `WIZZZARD_PHASE_DONE`.
-- Bash whitelist (exact): `swift`, `make`, `git`, `plutil`, `codesign`, `mkdir`, `ls`, `cat`.
+- Bash whitelist (exact): `swift`, `make`, `plutil`, `codesign`, `mkdir`, `ls`, `cat` — `git` was removed by user decision (2026-08-05): **generated apps get no git repo**; phase docs live uncommitted in `docs/`. (Task 2 shipped with `git` whitelisted before this change; a standalone amendment commit removes it — see ledger.)
 - Empty description ⇒ wizard behavior byte-identical to today. Generation never depends on any LLM call.
 - SDK API note: code below targets the documented Agent SDK surface (`query({prompt, options})`, streaming-input `AsyncIterable` prompts, `canUseTool`, `systemPrompt: {type:"preset", preset:"claude_code", append}`, per-turn `result` messages). If the installed SDK version differs in type shapes (e.g. `SDKUserMessage` fields), adapt **minimally**, keep the observable contract, and document the deviation in your report.
 
@@ -507,10 +507,9 @@ __APP_CONTEXT__
 
 ## When the design is approved
 1. Write the design to docs/DESIGN.md (the same content you presented, as markdown).
-2. Commit it: `git add docs/DESIGN.md && git commit -m "docs: design from wizzzard brainstorm"`
-3. Reply with exactly: WIZZZARD_PHASE_DONE
+2. Reply with exactly: WIZZZARD_PHASE_DONE
 
-Rules: never edit Swift files in this phase; never output WIZZZARD_PHASE_DONE before the commit succeeds.
+Rules: never edit Swift files in this phase; never run git (this project has no git repo); never output WIZZZARD_PHASE_DONE before docs/DESIGN.md is written.
 ````
 
 `prompts/plan.md`:
@@ -530,10 +529,9 @@ __APP_CONTEXT__
 
 ## Deliver
 1. Write docs/PLAN.md.
-2. Commit it: `git add docs/PLAN.md && git commit -m "docs: implementation plan"`
-3. Reply with a one-line summary of the plan, then on its own line exactly: WIZZZARD_PHASE_DONE
+2. Reply with a one-line summary of the plan, then on its own line exactly: WIZZZARD_PHASE_DONE
 
-Rules: never edit Swift files in this phase; never output WIZZZARD_PHASE_DONE before the commit succeeds.
+Rules: never edit Swift files in this phase; never run git (this project has no git repo); never output WIZZZARD_PHASE_DONE before docs/PLAN.md is written.
 ````
 
 `prompts/implement.md`:
@@ -548,12 +546,12 @@ __APP_CONTEXT__
 For each task in docs/PLAN.md, in order:
 1. Implement it (create/edit files inside this app directory).
 2. Verify with `swift build`; fix compile errors before moving on.
-3. Commit: `git add -A && git commit -m "feat: <short task summary>"`
 
 ## Rules
 - Never use `swift run` — it does not produce a real app bundle. Use `swift build` for compile checks and `make build` for the bundle.
 - Stay inside this app directory.
-- If a task turns out wrong or impossible, adapt minimally and say so in that commit message.
+- Never run git — this project has no git repo.
+- If a task turns out wrong or impossible, adapt minimally and mention it in your final summary.
 - Do not add dependencies the plan doesn't call for.
 
 ## Finish
@@ -1164,7 +1162,7 @@ async function runPhases(answers: Answers, targetDir: string): Promise<void> {
     p.log.message(question);
     const answer = await p.text({ message: "Your answer" });
     if (p.isCancel(answer)) {
-      p.cancel("Stopping here — your app and everything committed so far are intact.");
+      p.cancel("Stopping here — your app and any docs written so far are intact.");
       process.exit(0);
     }
     return answer;
@@ -1179,7 +1177,7 @@ async function runPhases(answers: Answers, targetDir: string): Promise<void> {
       io,
       askUser,
     });
-    p.log.success("Design written and committed to docs/DESIGN.md");
+    p.log.success("Design written to docs/DESIGN.md");
 
     const wantPlan = await p.confirm({ message: "Write the implementation plan?" });
     if (p.isCancel(wantPlan) || !wantPlan) {
@@ -1192,7 +1190,7 @@ async function runPhases(answers: Answers, targetDir: string): Promise<void> {
       appDir: targetDir,
       io,
     });
-    p.log.success("Plan written and committed to docs/PLAN.md");
+    p.log.success("Plan written to docs/PLAN.md");
 
     const wantImplement = await p.confirm({ message: "Implement it now?" });
     if (p.isCancel(wantImplement) || !wantImplement) {
@@ -1208,7 +1206,7 @@ async function runPhases(answers: Answers, targetDir: string): Promise<void> {
     if (summary) p.note(summary, "Implementation summary");
   } catch (error) {
     p.log.error(
-      `Something went wrong talking to Claude — your app and docs committed so far are intact. ` +
+      `Something went wrong talking to Claude — your app and docs written so far are intact. ` +
         `Continue anytime with Claude Code in ${targetDir}. (${error instanceof Error ? error.message : String(error)})`,
     );
   }
@@ -1274,8 +1272,8 @@ cat <<'EOF'
    click to copy it
 3. Answer the brainstorm questions, approve the design,
    accept both gates (plan + implement).
-4. PASS criteria: docs/DESIGN.md and docs/PLAN.md committed in the
-   generated repo, per-task feat commits, `make build` green, app runs.
+4. PASS criteria: docs/DESIGN.md and docs/PLAN.md written in the
+   generated app's docs/, `make build` green, app runs. No git repo created.
 ───────────────────────────────────────────────────────
 EOF
 
@@ -1302,9 +1300,9 @@ wizzzard setup
 
 This uses Claude Code's own login (`claude /login`) — wizzzard never stores tokens. Then, when the wizard asks **Describe your app**, answering it kicks off, inside your new repo:
 
-1. **Brainstorm** — Claude asks a few questions one at a time, then writes and commits `docs/DESIGN.md`
+1. **Brainstorm** — Claude asks a few questions one at a time, then writes `docs/DESIGN.md`
 2. **Plan** (gated) — turns the design into a step-by-step `docs/PLAN.md`
-3. **Implement** (gated) — executes the plan task by task, committing as it goes, ending with a green `make build`
+3. **Implement** (gated) — executes the plan task by task, ending with a green `make build`
 
 File edits and build commands inside your new app are auto-allowed; anything else (other paths, other commands, network) asks on-screen first. Skip any gate and pick up later in Claude Code — the docs are plain markdown in your repo.
 ```

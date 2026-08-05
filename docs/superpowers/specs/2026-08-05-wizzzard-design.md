@@ -32,7 +32,7 @@ Run `npx wizzzard` in any directory. Prompts, in order:
    - *Regular Dock app*
 4. **Menu bar UI** — *Popover with SwiftUI view* or *plain dropdown menu*. Asked only for the menu-bar-only style (v1: the other two styles get no status item).
 5. **Launch at login?** — yes/no. Sets the default; the generated Settings window always contains the toggle regardless.
-6. **Summary + confirm** — then generate into `./<kebab-name>/`, `git init` + initial commit, print next steps (`cd <dir> && make run`).
+6. **Summary + confirm** — then generate into `./<kebab-name>/` and print next steps (`cd <dir> && make run`). *(Amended 2026-08-05: no git repo is created — user decision.)*
 
 ## Generated app
 
@@ -92,7 +92,7 @@ wizzzard/
 1. Copy `template/` to target dir (refuse if target exists and is non-empty).
 2. Substitute tokens (`__APP_NAME__`, `__MODULE_NAME__`, `__KEBAB_NAME__`, `__BUNDLE_ID__`) in file contents and in file/directory names.
 3. Structural picks: copy the chosen `MenuBar` variant to `MenuBar.swift`, drop the other; omit `MenuBar.swift` entirely for non-menu-bar styles. Write `LSUIElement` and `AppConfig.swift` values from answers.
-4. `git init`, initial commit ("Scaffolded by wizzzard"), print next steps.
+4. Print next steps. *(Amended 2026-08-05: generation no longer creates a git repo.)*
 
 No template engine, no programmatic Swift generation — token substitution and a file pick. Template complexity lives in real Swift files that compile.
 
