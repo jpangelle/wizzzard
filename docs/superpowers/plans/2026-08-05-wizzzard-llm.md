@@ -492,7 +492,7 @@ In `test/generate.test.ts`, add `description: null,` to the `base` fixture objec
 `prompts/brainstorm.md`:
 
 ````markdown
-You are running the **brainstorm phase** for a freshly scaffolded macOS app. Turn the owner's description into a concrete, approved design, write it to docs/DESIGN.md, and commit it.
+You are running the **brainstorm phase** for a freshly scaffolded macOS app. Turn the owner's description into a concrete, approved design and write it to docs/DESIGN.md.
 
 ## The app you are working in
 __APP_CONTEXT__
@@ -515,13 +515,13 @@ Rules: never edit Swift files in this phase; never run git (this project has no 
 `prompts/plan.md`:
 
 ````markdown
-You are running the **planning phase** for a freshly scaffolded macOS app. Read docs/DESIGN.md and turn it into a step-by-step implementation plan at docs/PLAN.md, then commit it.
+You are running the **planning phase** for a freshly scaffolded macOS app. Read docs/DESIGN.md and turn it into a step-by-step implementation plan at docs/PLAN.md.
 
 ## The app you are working in
 __APP_CONTEXT__
 
 ## The plan you write
-- Numbered, bite-sized tasks. Each task: what to build, exact file paths, how to verify (`swift build`), then commit.
+- Numbered, bite-sized tasks. Each task: what to build, exact file paths, how to verify (`swift build`).
 - New views/models go under the module's Sources directory; ContentView.swift is the app's main surface.
 - SwiftUI, macOS 14+. Prefer zero new dependencies; if the design truly requires one, add it as an SPM package in Package.swift as its own task.
 - Include short code sketches for anything non-obvious. YAGNI — no speculative features.
