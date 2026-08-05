@@ -35,6 +35,16 @@ test("validateAppName rejects empty, digit-leading, and symbol-only names", () =
   assert.equal(validateAppName("Clipboard Buddy"), undefined);
 });
 
+test("validateAppName rejects names with characters unsafe for XML/Swift/Make interpolation", () => {
+  assert.ok(validateAppName("Fish & Chips"));
+  assert.ok(validateAppName('Say "Hi"'));
+  assert.ok(validateAppName("<script>"));
+  assert.ok(validateAppName("It's Mine"));
+  assert.ok(validateAppName("Back\\Slash"));
+  assert.ok(validateAppName("$HOME App"));
+  assert.equal(validateAppName("Clipboard Buddy"), undefined);
+});
+
 test("isValidBundleId requires reverse-DNS shape", () => {
   assert.ok(isValidBundleId("com.jpangelle.clipboard-buddy"));
   assert.ok(!isValidBundleId("no-dots"));

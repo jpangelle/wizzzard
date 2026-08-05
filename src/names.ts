@@ -22,6 +22,9 @@ export function isValidBundleId(id: string): boolean {
 
 export function validateAppName(appName: string): string | undefined {
   if (!appName.trim()) return "App name is required";
+  if (/[&<>"'\\$]/.test(appName)) {
+    return `App name can't contain & < > " ' \\ or $`;
+  }
   const moduleName = deriveModuleName(appName);
   if (!/^[A-Za-z][A-Za-z0-9]*$/.test(moduleName)) {
     return "App name must contain letters and not start with a digit";

@@ -6,6 +6,12 @@ import * as p from "@clack/prompts";
 import { generate } from "./generate.ts";
 import { runPrompts } from "./prompts.ts";
 
+const nodeMajor = Number(process.versions.node.split(".")[0]);
+if (nodeMajor < 24) {
+  console.error(`wizzzard requires Node 24+ (you have ${process.versions.node})`);
+  process.exit(1);
+}
+
 const templateDir = fileURLToPath(new URL("../template", import.meta.url));
 
 const swiftCheck = spawnSync("swift", ["--version"], { stdio: "ignore" });

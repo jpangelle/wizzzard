@@ -2,6 +2,8 @@
   "name": "wizzzard",
   "version": "0.1.0",
   "description": "CLI wizard for scaffolding macOS QoL utility apps",
+  "license": "MIT",
+  "repository": "github:jpangelle/wizzzard",
   "type": "module",
   "bin": {
     "wizzzard": "./src/index.ts"
