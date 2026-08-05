@@ -1,5 +1,4 @@
 import { query as defaultQuery } from "@anthropic-ai/claude-agent-sdk";
-import type { SDKUserMessage } from "@anthropic-ai/claude-agent-sdk";
 import { decide } from "./policy.ts";
 import { AsyncQueue } from "./queue.ts";
 
@@ -59,7 +58,7 @@ export async function probeAuth(queryFn: QueryFn = defaultQuery): Promise<boolea
       prompt: "Reply with only: ok",
       options: { maxTurns: 1, allowedTools: [] },
     });
-    for await (const message of stream as unknown as AsyncIterable<{ type: string; subtype?: string }>) {
+    for await (const message of stream as AsyncIterable<{ type: string; subtype?: string }>) {
       if (message.type === "result") return message.subtype === "success";
     }
     return false;
@@ -94,12 +93,12 @@ export async function runInteractivePhase(opts: {
   inputs.push(userMessage(opts.initialMessage));
 
   const stream = queryFn({
-    prompt: inputs as unknown as AsyncIterable<SDKUserMessage>,
+    prompt: inputs as AsyncIterable<never>,
     options: buildOptions(opts.systemPrompt, opts.appDir, opts.io),
   });
 
   let turnText = "";
-  for await (const raw of stream as unknown as AsyncIterable<StreamMessage>) {
+  for await (const raw of stream as AsyncIterable<StreamMessage>) {
     if (raw.type === "assistant" && raw.message) {
       for (const block of raw.message.content) {
         if (block.type === "text") turnText += (block as { text: string }).text;
@@ -136,12 +135,12 @@ export async function runAutonomousPhase(opts: {
   inputs.end();
 
   const stream = queryFn({
-    prompt: inputs as unknown as AsyncIterable<SDKUserMessage>,
+    prompt: inputs as AsyncIterable<never>,
     options: buildOptions(opts.systemPrompt, opts.appDir, opts.io),
   });
 
   let text = "";
-  for await (const raw of stream as unknown as AsyncIterable<StreamMessage>) {
+  for await (const raw of stream as AsyncIterable<StreamMessage>) {
     if (raw.type === "assistant" && raw.message) {
       for (const block of raw.message.content) {
         if (block.type === "text") text += (block as { text: string }).text;
