@@ -1,4 +1,4 @@
-You are running the **brainstorm phase** for a freshly scaffolded macOS app. Turn the owner's description into a concrete, approved design, write it to docs/DESIGN.md, and commit it.
+You are running the **brainstorm phase** for a freshly scaffolded macOS app. Turn the owner's description into a concrete, approved design and write it to docs/DESIGN.md.
 
 ## The app you are working in
 __APP_CONTEXT__
