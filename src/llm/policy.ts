@@ -48,9 +48,10 @@ export function decide(
 function bashProblem(command: string, root: string): string | null {
   if (!command.trim()) return "empty command";
   if (/[`$]/.test(command)) return "contains shell expansion ($ or backticks)";
+  if (/<\(|>\(/.test(command)) return "contains process substitution";
 
   const segments = command
-    .split(/&&|\|\||;|\|/)
+    .split(/[;|&\n\r]+/)
     .map((segment) => segment.trim())
     .filter(Boolean);
   if (segments.length === 0) return "empty command";

