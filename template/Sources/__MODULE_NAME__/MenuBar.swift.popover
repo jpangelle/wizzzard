@@ -1,0 +1,24 @@
+import SwiftUI
+
+struct MenuBar: Scene {
+    var body: some Scene {
+        MenuBarExtra(AppConfig.appName, systemImage: AppConfig.menuBarIcon) {
+            VStack(spacing: 0) {
+                ContentView()
+                Divider()
+                HStack {
+                    SettingsLink()
+                        .buttonStyle(.link)
+                    Spacer()
+                    Button("Quit") {
+                        NSApp.terminate(nil)
+                    }
+                    .buttonStyle(.link)
+                }
+                .padding(8)
+            }
+            .frame(width: 320)
+        }
+        .menuBarExtraStyle(.window)
+    }
+}

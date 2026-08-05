@@ -1,0 +1,17 @@
+import SwiftUI
+
+struct MenuBar: Scene {
+    var body: some Scene {
+        MenuBarExtra(AppConfig.appName, systemImage: AppConfig.menuBarIcon) {
+            ContentView()
+            Divider()
+            SettingsLink()
+                .keyboardShortcut(",")
+            Button("Quit \(AppConfig.appName)") {
+                NSApp.terminate(nil)
+            }
+            .keyboardShortcut("q")
+        }
+        .menuBarExtraStyle(.menu)
+    }
+}

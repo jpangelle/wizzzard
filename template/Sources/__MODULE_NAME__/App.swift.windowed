@@ -1,0 +1,15 @@
+import SwiftUI
+
+@main
+struct __MODULE_NAME__App: App {
+    @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
+
+    var body: some Scene {
+        WindowGroup {
+            ContentView()
+        }
+        Settings {
+            SettingsView()
+        }
+    }
+}
